@@ -34,8 +34,8 @@ public class Lead {
     @Column(length = 50)
     private String name;
 
-    @Column(nullable = false, length = 20)
-    private String phoneNumber;
+    @Column(nullable = false, length = 100)
+    private String email;
 
     @Column(nullable = false, length = 50)
     private String metaCampaignId;
@@ -52,10 +52,10 @@ public class Lead {
     private LocalDateTime createdAt;
 
     @Builder
-    public Lead(String name, String phoneNumber, String metaCampaignId,
+    public Lead(String name, String email, String metaCampaignId,
         User convertedUser, LeadStatus status) {
         this.name = name;
-        this.phoneNumber = phoneNumber;
+        this.email = email;
         this.metaCampaignId = metaCampaignId;
         this.convertedUser = convertedUser;
         this.status = status;
