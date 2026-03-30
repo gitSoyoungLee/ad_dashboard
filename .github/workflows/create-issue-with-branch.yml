@@ -12,9 +12,15 @@ jobs:
   create-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Git
+        run: |
+          git config --global user.name "gitSoyoungLee"
+          git config --global user.email "soo7132@naver.com"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          token: ${{secrets.TOKEN}}
           ref: dev  # dev 브랜치 체크아웃
 
       - name: Pull latest dev
@@ -22,22 +28,20 @@ jobs:
 
       - name: Extract Label
         id: extract-label
-        run: |
-          # 이슈에 달린 첫 번째 라벨을 가져오고, 없으면 other로 설정
-               if [ -z "${{ toJson(github.event.issue.labels) }}" ] || [ "${{ toJson(github.event.issue.labels) }}" == "[]" ]; then
-               echo "label=other" >> $GITHUB_ENV
-               else
-          # 첫 번째 라벨 이름을 가져와서 소문자로 변환
-               LABEL=$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r '.[0].name' | tr '[:upper:]' '[:lower:]')
-               echo "label=${LABEL}" >> $GITHUB_ENV
-               fi
+        run: | # 이슈에 달린 첫 번째 라벨을 가져오고, 없으면 other로 설정
+          if [ -z "${{ toJson(github.event.issue.labels) }}" ] || [ "${{ toJson(github.event.issue.labels) }}" == "[]" ]; then
+          echo "label=other" >> $GITHUB_ENV
+          else # 첫 번째 라벨 이름을 가져와서 소문자로 변환
+            LABEL=$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r '.[0].name' | tr '[:upper:]' '[:lower:]')
+            echo "label=${LABEL}" >> $GITHUB_ENV
+          fi
 
       - name: Create Branch
         run: |
-               ISSUE_NUMBER=${{ github.event.issue.number }}
+          ISSUE_NUMBER=${{ github.event.issue.number }}
           # 원하는 형식인 [라벨/번호]로 브랜치명 설정
-               BRANCH_NAME="${{ env.label }}/$ISSUE_NUMBER"
+          BRANCH_NAME="${{ env.label }}/$ISSUE_NUMBER"
           
           # dev 브랜치로부터 새 브랜치 생성 및 푸시
-               git checkout -b "$BRANCH_NAME"
-               git push origin "$BRANCH_NAME"
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
