@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: ad_dashboard
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ad_dashboard
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
