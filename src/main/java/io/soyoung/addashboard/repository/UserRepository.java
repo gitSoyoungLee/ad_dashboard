@@ -11,6 +11,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
+    long countByUtmCampaign(String utmCampaign);
+
     @Query("SELECT CAST(u.createdAt AS LocalDate), COUNT(u) FROM User u "
         + "WHERE u.createdAt BETWEEN :start AND :end "
         + "GROUP BY CAST(u.createdAt AS LocalDate) "
