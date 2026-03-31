@@ -1,5 +1,6 @@
 package io.soyoung.addashboard.dto;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,8 +12,12 @@ import lombok.Setter;
 @Setter
 public class CampaignSearchRequest {
 
+    @NotNull(message = "시작일은 필수입니다")
     private LocalDate startDate;
+
+    @NotNull(message = "종료일은 필수입니다")
     private LocalDate endDate;
+
     private String type;
     private String sortBy;
 }
