@@ -90,12 +90,11 @@ public class CampaignService {
         BigDecimal spend = adInsightRawRepository.sumSpendByMetaIdsAndDateBetween(
             adMetaIds, request.getStartDate(), request.getEndDate());
 
-        // 기간 내 클릭 수/노출 수 합산 (단일 쿼리)
-        Object[] clicksAndImpressions = adInsightRawRepository
-            .sumClicksAndImpressionsByMetaIdsAndDateBetween(
-                adMetaIds, request.getStartDate(), request.getEndDate());
-        long totalClicks = ((Number) clicksAndImpressions[0]).longValue();
-        long totalImpressions = ((Number) clicksAndImpressions[1]).longValue();
+        // 기간 내 클릭 수/노출 수 합산
+        long totalClicks = adInsightRawRepository.sumClicksByMetaIdsAndDateBetween(
+            adMetaIds, request.getStartDate(), request.getEndDate());
+        long totalImpressions = adInsightRawRepository.sumImpressionsByMetaIdsAndDateBetween(
+            adMetaIds, request.getStartDate(), request.getEndDate());
 
         // CTR 계산 (노출 0이면 0.0)
         double ctr = totalImpressions > 0
