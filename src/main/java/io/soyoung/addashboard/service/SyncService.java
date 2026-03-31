@@ -5,6 +5,7 @@ import io.soyoung.addashboard.client.MetaApiClient.InsightData;
 import io.soyoung.addashboard.dto.SyncResultResponse;
 import io.soyoung.addashboard.entity.AdInsightRaw;
 import io.soyoung.addashboard.repository.AdInsightRawRepository;
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,26 +27,31 @@ public class SyncService {
     private final MetaApiClient metaApiClient;
     private final AdInsightRawRepository adInsightRawRepository;
 
-    @Value("${meta.api.ad-account-id:}")
+    @Value("${meta.api.ad-account-id}")
     private String adAccountId;
+
+    @PostConstruct
+    void validateConfig() {
+        if (adAccountId == null || adAccountId.isBlank()) {
+            log.warn("meta.api.ad-account-id가 설정되지 않았습니다. 동기화 기능이 동작하지 않습니다.");
+        }
+    }
 
     /**
      * 지정된 날짜 범위의 Meta 광고 성과 데이터를 동기화한다.
+     * 외부 API 호출은 트랜잭션 밖에서, DB 적재는 트랜잭션 안에서 수행한다.
      *
      * @param since 동기화 시작일
      * @param until 동기화 종료일
      * @return 동기화 결과 (상태, 건수, 메시지)
      */
-    @Transactional
     public SyncResultResponse syncInsights(LocalDate since, LocalDate until) {
         try {
+            // 외부 API 호출 (트랜잭션 밖)
             List<InsightData> insights = metaApiClient.fetchInsights(adAccountId, since, until);
 
-            int syncedCount = 0;
-            for (InsightData data : insights) {
-                upsertInsight(data);
-                syncedCount++;
-            }
+            // DB 적재 (트랜잭션 안)
+            int syncedCount = saveInsights(insights);
 
             log.info("Meta 동기화 완료: {}건 처리 (기간: {} ~ {})", syncedCount, since, until);
 
@@ -63,6 +69,16 @@ public class SyncService {
                 .message("동기화 실패: " + e.getMessage())
                 .build();
         }
+    }
+
+    @Transactional
+    protected int saveInsights(List<InsightData> insights) {
+        int count = 0;
+        for (InsightData data : insights) {
+            upsertInsight(data);
+            count++;
+        }
+        return count;
     }
 
     /**

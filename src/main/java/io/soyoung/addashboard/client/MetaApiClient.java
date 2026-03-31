@@ -51,7 +51,7 @@ public class MetaApiClient {
             .uri("/{adAccountId}/insights?access_token={token}&fields={fields}"
                     + "&time_range={timeRange}&time_increment=1&level=ad&limit=500",
                 adAccountId, accessToken,
-                "campaign_id,spend,impressions,clicks,reach", timeRange)
+                "ad_id,spend,impressions,clicks,reach", timeRange)
             .retrieve()
             .body(new ParameterizedTypeReference<>() {
             });
@@ -69,9 +69,12 @@ public class MetaApiClient {
     }
 
     private InsightData toInsightData(Map<String, Object> raw) {
+        String dateStr = (String) raw.get("date_start");
+        LocalDate logDate = (dateStr != null) ? LocalDate.parse(dateStr) : LocalDate.now();
+
         return new InsightData(
-            (String) raw.getOrDefault("campaign_id", ""),
-            LocalDate.parse((String) raw.get("date_start")),
+            (String) raw.getOrDefault("ad_id", ""),
+            logDate,
             new BigDecimal(raw.getOrDefault("spend", "0").toString()),
             Integer.parseInt(raw.getOrDefault("impressions", "0").toString()),
             Integer.parseInt(raw.getOrDefault("clicks", "0").toString()),
