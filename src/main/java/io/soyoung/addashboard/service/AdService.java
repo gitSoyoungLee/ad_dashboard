@@ -66,9 +66,15 @@ public class AdService {
             totalClicks += insight.getClicks() != null ? insight.getClicks() : 0;
         }
 
-        // 소재별 전환 수 (Conversion 테이블 기반)
-        int conversions = (int) conversionRepository.countByCampaignIdAndCreatedAtBetween(
-            metaId,
+        // 소재 및 하위 엔티티의 전환 수를 함께 집계
+        List<String> targetIds = new java.util.ArrayList<>();
+        targetIds.add(metaId);
+        adEntityRepository.findAllByParentMetaId(metaId).stream()
+            .map(AdEntity::getMetaId)
+            .forEach(targetIds::add);
+
+        int conversions = (int) conversionRepository.countByCampaignIdInAndCreatedAtBetween(
+            targetIds,
             startDate.atStartOfDay(),
             endDate.atTime(LocalTime.MAX));
 
