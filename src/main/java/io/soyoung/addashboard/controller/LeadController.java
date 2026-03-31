@@ -8,11 +8,13 @@ import io.soyoung.addashboard.repository.LeadRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * 리드 관리 API 컨트롤러.
@@ -43,7 +45,8 @@ public class LeadController {
             try {
                 leads = leadRepository.findAllByStatus(LeadStatus.valueOf(status));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("유효하지 않은 리드 상태입니다: " + status);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "유효하지 않은 리드 상태입니다: " + status);
             }
         } else if (metaCampaignId != null && !metaCampaignId.isEmpty()) {
             leads = leadRepository.findAllByMetaCampaignId(metaCampaignId);

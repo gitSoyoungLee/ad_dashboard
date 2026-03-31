@@ -32,6 +32,6 @@ public class SyncController {
     @PostMapping("/meta")
     public ResponseEntity<SyncResultResponse> syncMeta(@Valid @RequestBody MetaSyncRequest request) {
         return ResponseEntity.ok(syncService.syncInsights(
-            request.getTargetDate(), request.getTargetDate()));
+            request.getStartDate(), request.getEndDate()));
     }
 }
