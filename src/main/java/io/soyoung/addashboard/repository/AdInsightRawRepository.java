@@ -30,10 +30,14 @@ public interface AdInsightRawRepository extends JpaRepository<AdInsightRaw, Long
         @Param("category") io.soyoung.addashboard.entity.AdCategory category,
         @Param("start") LocalDate start, @Param("end") LocalDate end);
 
-    @Query("SELECT COALESCE(SUM(a.clicks), 0), COALESCE(SUM(a.impressions), 0) "
-        + "FROM AdInsightRaw a "
+    @Query("SELECT COALESCE(SUM(a.clicks), 0) FROM AdInsightRaw a "
         + "WHERE a.metaId IN :metaIds AND a.logDate BETWEEN :start AND :end")
-    Object[] sumClicksAndImpressionsByMetaIdsAndDateBetween(@Param("metaIds") List<String> metaIds,
+    Long sumClicksByMetaIdsAndDateBetween(@Param("metaIds") List<String> metaIds,
+        @Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    @Query("SELECT COALESCE(SUM(a.impressions), 0) FROM AdInsightRaw a "
+        + "WHERE a.metaId IN :metaIds AND a.logDate BETWEEN :start AND :end")
+    Long sumImpressionsByMetaIdsAndDateBetween(@Param("metaIds") List<String> metaIds,
         @Param("start") LocalDate start, @Param("end") LocalDate end);
 
     @Query("SELECT a.logDate, COALESCE(SUM(a.spend), 0), "
