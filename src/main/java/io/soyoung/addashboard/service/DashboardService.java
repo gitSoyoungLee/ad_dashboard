@@ -50,8 +50,9 @@ public class DashboardService {
         // 기간 내 신규 가입자 수
         long userCount = userRepository.countByCreatedAtBetween(startDateTime, endDateTime);
 
-        // 검증 완료된 유효 리드 수
-        long validLeadCount = leadRepository.countByStatus(LeadStatus.VERIFIED);
+        // 기간 내 검증 완료된 유효 리드 수
+        long validLeadCount = leadRepository.countByStatusAndCreatedAtBetween(
+            LeadStatus.VERIFIED, startDateTime, endDateTime);
 
         // 총 유입 수 = 가입자 + 유효 리드
         long totalInbound = userCount + validLeadCount;
@@ -103,6 +104,15 @@ public class DashboardService {
                 row -> row
             ));
 
+        // 기간 내 일별 가입자 수 집계 (단일 쿼리로 N+1 문제 방지)
+        List<Object[]> dailyUsers = userRepository.countDailyUsersBetween(
+            startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+        Map<LocalDate, Long> userCountMap = dailyUsers.stream()
+            .collect(Collectors.toMap(
+                row -> (LocalDate) row[0],
+                row -> (Long) row[1]
+            ));
+
         List<String> labels = new ArrayList<>();
         List<Long> spendData = new ArrayList<>();
         List<Long> impressionsData = new ArrayList<>();
@@ -124,11 +134,7 @@ public class DashboardService {
                 clicksData.add(0L);
             }
 
-            // 해당 날짜의 신규 가입자 수 조회
-            LocalDateTime dayStart = date.atStartOfDay();
-            LocalDateTime dayEnd = date.atTime(LocalTime.MAX);
-            int dailyUsers = (int) userRepository.countByCreatedAtBetween(dayStart, dayEnd);
-            userCountData.add(dailyUsers);
+            userCountData.add(userCountMap.getOrDefault(date, 0L).intValue());
         }
 
         return TrendResponse.builder()

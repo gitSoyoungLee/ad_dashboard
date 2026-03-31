@@ -2,6 +2,7 @@ package io.soyoung.addashboard.repository;
 
 import io.soyoung.addashboard.entity.Lead;
 import io.soyoung.addashboard.entity.LeadStatus;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,7 @@ public interface LeadRepository extends JpaRepository<Lead, Long> {
     long countByMetaCampaignId(String metaCampaignId);
 
     long countByStatus(LeadStatus status);
+
+    long countByStatusAndCreatedAtBetween(LeadStatus status, LocalDateTime start,
+        LocalDateTime end);
 }
