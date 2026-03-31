@@ -80,7 +80,8 @@ public class AdService {
 
         // 소재별 CPA 산출 (전환 0이면 null → 좀비 광고 판별 근거)
         Integer cpa = conversions > 0
-            ? (int) (totalSpend / conversions)
+            ? BigDecimal.valueOf(totalSpend).divide(BigDecimal.valueOf(conversions), 0,
+                java.math.RoundingMode.HALF_UP).intValue()
             : null;
 
         // CTR 계산 (노출 0이면 0.0)

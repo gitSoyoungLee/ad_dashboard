@@ -42,10 +42,19 @@ public class CampaignService {
      */
     public List<CampaignStatResponse> getCampaigns(CampaignSearchRequest request) {
         // 캠페인 유형 필터링
-        List<AdEntity> campaigns = (request.getType() != null && !request.getType().isEmpty())
-            ? adEntityRepository.findAllByEntityTypeAndAdCategory(
-                EntityType.CAMPAIGN, AdCategory.valueOf(request.getType()))
-            : adEntityRepository.findAllByEntityType(EntityType.CAMPAIGN);
+        List<AdEntity> campaigns;
+        if (request.getType() != null && !request.getType().isEmpty()) {
+            try {
+                AdCategory category = AdCategory.valueOf(request.getType());
+                campaigns = adEntityRepository.findAllByEntityTypeAndAdCategory(
+                    EntityType.CAMPAIGN, category);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(
+                    "유효하지 않은 캠페인 유형입니다: " + request.getType());
+            }
+        } else {
+            campaigns = adEntityRepository.findAllByEntityType(EntityType.CAMPAIGN);
+        }
 
         List<CampaignStatResponse> results = campaigns.stream()
             .map(campaign -> buildCampaignStat(campaign, request))
