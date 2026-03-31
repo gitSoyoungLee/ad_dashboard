@@ -22,9 +22,10 @@ public interface AdInsightRawRepository extends JpaRepository<AdInsightRaw, Long
     BigDecimal sumSpendByMetaIdsAndDateBetween(@Param("metaIds") List<String> metaIds,
         @Param("start") LocalDate start, @Param("end") LocalDate end);
 
-    @Query("SELECT COALESCE(SUM(a.spend), 0) FROM AdInsightRaw a "
-        + "JOIN AdEntity e ON a.metaId = e.metaId "
-        + "WHERE e.adCategory = :category AND a.logDate BETWEEN :start AND :end")
+    @Query("SELECT COALESCE(SUM(a.spend), 0) FROM AdInsightRaw a, AdEntity e "
+        + "WHERE a.metaId = e.metaId "
+        + "AND e.adCategory = :category "
+        + "AND a.logDate BETWEEN :start AND :end")
     BigDecimal sumSpendByCategoryAndDateBetween(
         @Param("category") io.soyoung.addashboard.entity.AdCategory category,
         @Param("start") LocalDate start, @Param("end") LocalDate end);
