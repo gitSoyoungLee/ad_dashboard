@@ -17,6 +17,10 @@ public interface LeadRepository extends JpaRepository<Lead, Long> {
 
     long countByStatus(LeadStatus status);
 
+    List<Lead> findAllByStatus(LeadStatus status);
+
+    List<Lead> findAllByMetaCampaignId(String metaCampaignId);
+
     long countByStatusAndCreatedAtBetween(LeadStatus status, LocalDateTime start,
         LocalDateTime end);
 }
