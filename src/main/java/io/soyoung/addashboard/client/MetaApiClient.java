@@ -7,12 +7,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 /**
- * Meta Graph API(Insights) 호출 클라이언트.
- * 광고 계정의 일별 성과 데이터를 조회한다.
+ * Meta Graph API(Insights) 호출 클라이언트. 광고 계정의 일별 성과 데이터를 조회한다.
  */
 @Component
 public class MetaApiClient {
@@ -21,10 +22,16 @@ public class MetaApiClient {
     private final String accessToken;
 
     public MetaApiClient(
-        @Value("${meta.api.base-url:https://graph.facebook.com/v21.0}") String baseUrl,
+        @Value("${meta.api.base-url:https://graph.facebook.com/v25.0}") String baseUrl,
         @Value("${meta.api.access-token:}") String accessToken) {
+        JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter();
+        converter.setSupportedMediaTypes(List.of(
+            MediaType.APPLICATION_JSON,
+            new MediaType("text", "javascript")));
+
         this.restClient = RestClient.builder()
             .baseUrl(baseUrl)
+            .messageConverters(converters -> converters.add(0, converter))
             .build();
         this.accessToken = accessToken;
     }
@@ -38,18 +45,16 @@ public class MetaApiClient {
      * @return 일별 성과 데이터 목록
      */
     public List<InsightData> fetchInsights(String adAccountId, LocalDate since, LocalDate until) {
+        String timeRange = "{\"since\":\"" + since + "\",\"until\":\"" + until + "\"}";
+
         Map<String, Object> response = restClient.get()
-            .uri(uriBuilder -> uriBuilder
-                .path("/{adAccountId}/insights")
-                .queryParam("access_token", accessToken)
-                .queryParam("fields", "campaign_id,spend,impressions,clicks,reach")
-                .queryParam("time_range", "{\"since\":\"" + since + "\",\"until\":\"" + until + "\"}")
-                .queryParam("time_increment", "1")
-                .queryParam("level", "ad")
-                .queryParam("limit", "500")
-                .build(adAccountId))
+            .uri("/{adAccountId}/insights?access_token={token}&fields={fields}"
+                    + "&time_range={timeRange}&time_increment=1&level=ad&limit=500",
+                adAccountId, accessToken,
+                "campaign_id,spend,impressions,clicks,reach", timeRange)
             .retrieve()
-            .body(new ParameterizedTypeReference<>() {});
+            .body(new ParameterizedTypeReference<>() {
+            });
 
         if (response == null || !response.containsKey("data")) {
             return List.of();
@@ -84,5 +89,7 @@ public class MetaApiClient {
         int impressions,
         int clicks,
         int reach
-    ) {}
+    ) {
+
+    }
 }
