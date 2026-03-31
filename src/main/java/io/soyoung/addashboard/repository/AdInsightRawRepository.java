@@ -29,4 +29,12 @@ public interface AdInsightRawRepository extends JpaRepository<AdInsightRaw, Long
     BigDecimal sumSpendByCategoryAndDateBetween(
         @Param("category") io.soyoung.addashboard.entity.AdCategory category,
         @Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    @Query("SELECT a.logDate, COALESCE(SUM(a.spend), 0), "
+        + "COALESCE(SUM(a.impressions), 0), COALESCE(SUM(a.clicks), 0) "
+        + "FROM AdInsightRaw a "
+        + "WHERE a.logDate BETWEEN :start AND :end "
+        + "GROUP BY a.logDate ORDER BY a.logDate")
+    List<Object[]> findDailyStatsBetween(@Param("start") LocalDate start,
+        @Param("end") LocalDate end);
 }
