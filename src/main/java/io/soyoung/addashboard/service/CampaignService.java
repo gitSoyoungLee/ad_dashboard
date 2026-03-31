@@ -81,17 +81,12 @@ public class CampaignService {
         BigDecimal spend = adInsightRawRepository.sumSpendByMetaIdsAndDateBetween(
             adMetaIds, request.getStartDate(), request.getEndDate());
 
-        // 기간 내 클릭 수 합산
-        long totalClicks = 0;
-        long totalImpressions = 0;
-        for (String id : adMetaIds) {
-            var insights = adInsightRawRepository.findAllByMetaIdAndLogDateBetween(
-                id, request.getStartDate(), request.getEndDate());
-            for (var insight : insights) {
-                totalClicks += insight.getClicks() != null ? insight.getClicks() : 0;
-                totalImpressions += insight.getImpressions() != null ? insight.getImpressions() : 0;
-            }
-        }
+        // 기간 내 클릭 수/노출 수 합산 (단일 쿼리)
+        Object[] clicksAndImpressions = adInsightRawRepository
+            .sumClicksAndImpressionsByMetaIdsAndDateBetween(
+                adMetaIds, request.getStartDate(), request.getEndDate());
+        long totalClicks = ((Number) clicksAndImpressions[0]).longValue();
+        long totalImpressions = ((Number) clicksAndImpressions[1]).longValue();
 
         // CTR 계산 (노출 0이면 0.0)
         double ctr = totalImpressions > 0
