@@ -57,4 +57,12 @@ public class AdInsightRaw {
         this.clicks = clicks;
         this.reach = reach;
     }
+
+    public void updateMetrics(BigDecimal spend, Integer impressions, Integer clicks,
+        Integer reach) {
+        this.spend = spend;
+        this.impressions = impressions;
+        this.clicks = clicks;
+        this.reach = reach;
+    }
 }

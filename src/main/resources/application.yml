@@ -16,3 +16,8 @@ spring:
     hibernate:
       ddl-auto: none
     database: mysql
+
+meta:
+  api:
+    ad-account-id: ${META_AD_ACCOUNT_ID}
+    access-token: ${META_ACCESS_TOKEN}
