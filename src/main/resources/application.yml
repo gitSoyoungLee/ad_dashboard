@@ -21,3 +21,8 @@ meta:
   api:
     ad-account-id: ${META_AD_ACCOUNT_ID}
     access-token: ${META_ACCESS_TOKEN}
+
+sync:
+  cron:
+    yesterday: "0 0 10 * * *"
+    seven-days: "0 0 16 * * *"
