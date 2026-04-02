@@ -13,6 +13,9 @@
 
 Meta 광고 지출 데이터와 내부 전환 데이터를 통합하여 실질적인 광고 효율(CPA) 및 리드 가치를 분석하는 대시보드 시스템입니다.
 
+<img width="1918" height="837" alt="image" src="https://github.com/user-attachments/assets/f5affa82-d91e-47fb-bad5-d396ba2ab44f" />
+
+
 ## 프로젝트 배경
 
 Meta Ads Manager의 지출/결과 데이터와 서비스 내부의 가입/리드 데이터가 파편화되어 있어, 매일 수동으로 서로 다른 사이트에서 데이터를 확인하고 취합하는 비효율이
