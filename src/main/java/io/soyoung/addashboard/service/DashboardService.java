@@ -84,7 +84,7 @@ public class DashboardService {
 
     /**
      * 최근 30일간 일별 추이 데이터를 생성한다.
-     * 날짜별 광고 지출, 노출 수, 클릭 수, 신규 가입자 수를 집계하여
+     * 날짜별 광고 지출, 노출 수, 클릭 수, 총 유입 수(가입자 + 유효 리드)를 집계하여
      * 시계열 차트용 응답 객체를 반환한다.
      *
      * @param endDate 조회 기준 종료일 (이 날짜로부터 과거 30일)
@@ -113,11 +113,20 @@ public class DashboardService {
                 row -> (Long) row[1]
             ));
 
+        // 기간 내 일별 유효 리드 수 집계
+        List<Object[]> dailyLeads = leadRepository.countDailyLeadsByStatusBetween(
+            LeadStatus.VERIFIED, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+        Map<LocalDate, Long> leadCountMap = dailyLeads.stream()
+            .collect(Collectors.toMap(
+                row -> (LocalDate) row[0],
+                row -> (Long) row[1]
+            ));
+
         List<String> labels = new ArrayList<>();
         List<Long> spendData = new ArrayList<>();
         List<Long> impressionsData = new ArrayList<>();
         List<Long> clicksData = new ArrayList<>();
-        List<Integer> userCountData = new ArrayList<>();
+        List<Long> totalInboundData = new ArrayList<>();
 
         // 30일 전체를 순회하며, 데이터가 없는 날짜는 0으로 채움
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
@@ -134,7 +143,9 @@ public class DashboardService {
                 clicksData.add(0L);
             }
 
-            userCountData.add(userCountMap.getOrDefault(date, 0L).intValue());
+            long users = userCountMap.getOrDefault(date, 0L);
+            long leads = leadCountMap.getOrDefault(date, 0L);
+            totalInboundData.add(users + leads);
         }
 
         return TrendResponse.builder()
@@ -142,7 +153,7 @@ public class DashboardService {
             .spendData(spendData)
             .impressionsData(impressionsData)
             .clicksData(clicksData)
-            .userCountData(userCountData)
+            .totalInboundData(totalInboundData)
             .build();
     }
 }
