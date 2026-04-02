@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface LeadRepository extends JpaRepository<Lead, Long> {
 
@@ -23,4 +25,11 @@ public interface LeadRepository extends JpaRepository<Lead, Long> {
 
     long countByStatusAndCreatedAtBetween(LeadStatus status, LocalDateTime start,
         LocalDateTime end);
+
+    @Query("SELECT CAST(l.createdAt AS LocalDate), COUNT(l) FROM Lead l "
+        + "WHERE l.status = :status AND l.createdAt BETWEEN :start AND :end "
+        + "GROUP BY CAST(l.createdAt AS LocalDate) "
+        + "ORDER BY CAST(l.createdAt AS LocalDate)")
+    List<Object[]> countDailyLeadsByStatusBetween(@Param("status") LeadStatus status,
+        @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

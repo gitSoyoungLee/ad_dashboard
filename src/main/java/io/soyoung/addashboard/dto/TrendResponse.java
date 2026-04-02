@@ -15,5 +15,5 @@ public class TrendResponse {
     private List<Long> spendData;
     private List<Long> impressionsData;
     private List<Long> clicksData;
-    private List<Integer> userCountData;
+    private List<Long> totalInboundData;
 }
