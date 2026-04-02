@@ -38,7 +38,7 @@ public class MetaSyncScheduler {
     @Scheduled(cron = "${sync.cron.seven-days}", zone = "Asia/Seoul")
     public void syncLastSevenDays() {
         LocalDate today = LocalDate.now();
-        LocalDate sevenDaysAgo = today.minusDays(7);
+        LocalDate sevenDaysAgo = today.minusDays(6);
         log.info("[스케줄러] 최근 7일({} ~ {}) 데이터 동기화 시작", sevenDaysAgo, today);
 
         SyncResultResponse result = syncService.syncInsights(sevenDaysAgo, today);
