@@ -13,6 +13,8 @@
 
 Meta 광고 지출 데이터와 내부 전환 데이터를 통합하여 실질적인 광고 효율(CPA) 및 리드 가치를 분석하는 대시보드 시스템입니다.
 
+프론트엔드 저장소: [ad_dashboard_FE](https://github.com/gitSoyoungLee/ad_dashboard_FE)
+
 <img width="1918" height="837" alt="image" src="https://github.com/user-attachments/assets/f5affa82-d91e-47fb-bad5-d396ba2ab44f" />
 
 ## 트러블슈팅
