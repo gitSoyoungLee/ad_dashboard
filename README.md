@@ -86,7 +86,8 @@ Gemini API를 활용하여 최근 7일간의 소재별 성과 데이터를 종�
 - **액션 아이템:** 즉시 실행할 수 있는 구체적인 개선 제안
 - **분석 기준:** CTR 대비 전환율 괴리, 좀비 광고 탐지, CPA 이상치 감지, 우수 소재 특징 파악
 
-![screencapture-localhost-5173-2026-06-10-14_21_14 - 복사본.png](..%2F..%2FDownloads%2Fscreencapture-localhost-5173-2026-06-10-14_21_14%20-%20%EB%B3%B5%EC%82%AC%EB%B3%B8.png)
+<img width="1657" height="1282" alt="screencapture-localhost-5173-2026-06-10-14_21_14 - 복사본" src="https://github.com/user-attachments/assets/4093381e-ac27-42a8-bd2f-dd6fb6e22b3b" />
+
 
 ### 5. 시계열 추이 그래프 (Time-series)
 
