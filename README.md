@@ -77,7 +77,18 @@ Meta Ads Manager의 지출/결과 데이터와 서비스 내부의 가입/리드
 - A/B 테스트 결과 판별: 어떤 이미지/문구가 전환율이 높은지 비교
 - 좀비 광고 탐지: 예산만 소진하고 전환이 없는 저효율 소재 식별
 
-### 4. 시계열 추이 그래프 (Time-series)
+### 4. AI 광고 성과 분석 (AI Analysis)
+
+Gemini API를 활용하여 최근 7일간의 소재별 성과 데이터를 종합 분석합니다.
+
+- **종합 진단:** 전체 광고 계정의 성과 요약 및 핵심 이슈 도출
+- **소재별 진단:** 각 소재의 성과 평가와 개선 포인트 제시
+- **액션 아이템:** 즉시 실행할 수 있는 구체적인 개선 제안
+- **분석 기준:** CTR 대비 전환율 괴리, 좀비 광고 탐지, CPA 이상치 감지, 우수 소재 특징 파악
+
+![screencapture-localhost-5173-2026-06-10-14_21_14 - 복사본.png](..%2F..%2FDownloads%2Fscreencapture-localhost-5173-2026-06-10-14_21_14%20-%20%EB%B3%B5%EC%82%AC%EB%B3%B8.png)
+
+### 5. 시계열 추이 그래프 (Time-series)
 
 최근 30일간 지출액, 노출수, 클릭수의 추이를 시각화합니다.
 
@@ -95,13 +106,15 @@ Meta Ads Manager의 지출/결과 데이터와 서비스 내부의 가입/리드
 | HTTP Client  | Spring RestClient           |
 | Build        | Gradle                      |
 | External API | Meta Graph API v25.0        |
+| AI/LLM       | Google Gemini API           |
 
 ## 프로젝트 구조
 
 ```
 src/main/java/io/soyoung/addashboard/
 ├── client/                  # 외부 API 클라이언트
-│   └── MetaApiClient        # Meta Graph API 연동
+│   ├── MetaApiClient        # Meta Graph API 연동
+│   └── GeminiApiClient      # Google Gemini API 연동 (지수 백오프 재시도)
 ├── controller/              # REST API 엔드포인트
 │   ├── StatsController      # 대시보드 통계 API
 │   ├── LeadController       # 리드 관리 API
@@ -111,6 +124,7 @@ src/main/java/io/soyoung/addashboard/
 │   ├── DashboardService     # 요약 지표 및 트렌드 계산
 │   ├── CampaignService      # 캠페인별 성과 분석
 │   ├── AdService            # 소재별 성과 분석
+│   ├── AiAnalysisService    # AI 기반 광고 성과 종합 분석
 │   └── SyncService          # Meta API 데이터 동기화
 ├── repository/              # 데이터 접근 계층
 ├── entity/                  # JPA 엔티티 (6개) + Enum
@@ -127,6 +141,7 @@ src/main/java/io/soyoung/addashboard/
 | GET    | `/trends?endDate={}`                                   | 최근 30일 시계열 추이                |
 | GET    | `/campaigns?startDate={}&endDate={}&type={}&sortBy={}` | 캠페인별 성과 목록                   |
 | GET    | `/campaigns/{campaignId}/ads?startDate={}&endDate={}`  | 캠페인 내 소재별 성과                 |
+| POST   | `/ai-analysis`                                         | AI 광고 성과 종합 분석 (최근 7일)       |
 
 ### 리드/유저 API
 
@@ -175,6 +190,7 @@ DB_USERNAME=root
 DB_PASSWORD=your_password
 META_AD_ACCOUNT_ID=act_XXXXXXXXX
 META_ACCESS_TOKEN=your_access_token
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ### 실행
