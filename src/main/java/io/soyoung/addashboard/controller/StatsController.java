@@ -5,7 +5,9 @@ import io.soyoung.addashboard.dto.CampaignSearchRequest;
 import io.soyoung.addashboard.dto.CampaignStatResponse;
 import io.soyoung.addashboard.dto.SummaryResponse;
 import io.soyoung.addashboard.dto.TrendResponse;
+import io.soyoung.addashboard.dto.AiAnalysisResponse;
 import io.soyoung.addashboard.service.AdService;
+import io.soyoung.addashboard.service.AiAnalysisService;
 import io.soyoung.addashboard.service.CampaignService;
 import io.soyoung.addashboard.service.DashboardService;
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +36,7 @@ public class StatsController {
     private final DashboardService dashboardService;
     private final CampaignService campaignService;
     private final AdService adService;
+    private final AiAnalysisService aiAnalysisService;
 
     /**
      * 대시보드 종합 요약 통계를 조회한다.
@@ -87,5 +91,16 @@ public class StatsController {
         @RequestParam @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(adService.getAdStats(campaignId, startDate, endDate));
+    }
+
+    /**
+     * AI 기반 광고 성과 종합 분석을 수행한다.
+     * 최근 7일간의 소재별 성과 데이터를 Gemini API로 분석하여 진단 및 개선 제안을 반환한다.
+     *
+     * @return AI 분석 결과
+     */
+    @PostMapping("/ai-analysis")
+    public ResponseEntity<AiAnalysisResponse> analyzeWithAi() {
+        return ResponseEntity.ok(aiAnalysisService.analyze());
     }
 }

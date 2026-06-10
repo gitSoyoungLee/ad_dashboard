@@ -26,3 +26,9 @@ sync:
   cron:
     yesterday: "0 0 10 * * *"
     seven-days: "0 0 16 * * *"
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    model: gemini-flash-latest
+
