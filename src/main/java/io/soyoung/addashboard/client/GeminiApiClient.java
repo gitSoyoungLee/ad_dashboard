@@ -1,9 +1,11 @@
 package io.soyoung.addashboard.client;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -20,8 +22,14 @@ public class GeminiApiClient {
     public GeminiApiClient(
         @Value("${gemini.api.key}") String apiKey,
         @Value("${gemini.api.model:gemini-2.0-flash}") String model) {
+
+        // 연결 타임아웃 5초, 읽기 타임아웃 30초
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
+        factory.setReadTimeout(Duration.ofSeconds(30));
+
         this.restClient = RestClient.builder()
             .baseUrl("https://generativelanguage.googleapis.com/v1beta")
+            .requestFactory(factory)
             .build();
         this.apiKey = apiKey;
         this.model = model;
