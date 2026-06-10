@@ -18,15 +18,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * AI 기반 광고 성과 분석 서비스.
- * 최근 7일간의 소재별 성과 데이터를 수집하여 Gemini API로 종합 분석을 수행한다.
+ * AI 기반 광고 성과 분석 서비스. 최근 7일간의 소재별 성과 데이터를 수집하여 Gemini API로 종합 분석을 수행한다.
  */
 @Service
 @RequiredArgsConstructor
@@ -126,6 +123,7 @@ public class AiAnalysisService {
             .append("\n");
     }
 
+    // TODO: 프롬프트 외부 파일(txt)로 분리하여 관리
     private String buildPrompt(String adDataText, LocalDate startDate, LocalDate endDate) {
         return """
             너는 디지털 광고 성과 분석 전문가야.

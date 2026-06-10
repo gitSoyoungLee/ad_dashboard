@@ -51,8 +51,9 @@ public class GeminiApiClient {
         );
 
         Map<String, Object> response = restClient.post()
-            .uri("/models/{model}:generateContent?key={key}", model, apiKey)
+            .uri("/models/{model}:generateContent", model)
             .header("Content-Type", "application/json")
+            .header("X-goog-api-key", apiKey)
             .body(requestBody)
             .retrieve()
             .body(new ParameterizedTypeReference<>() {
