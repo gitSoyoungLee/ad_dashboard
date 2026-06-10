@@ -3,17 +3,23 @@ package io.soyoung.addashboard.client;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 /**
  * Google Gemini API 호출 클라이언트. 프롬프트를 전송하고 텍스트 응답을 반환한다.
  */
+@Slf4j
 @Component
 public class GeminiApiClient {
+
+    private static final int MAX_RETRIES = 3;
+    private static final long INITIAL_DELAY_MS = 1000; // 첫 재시도 대기 1초
 
     private final RestClient restClient;
     private final String apiKey;
@@ -50,16 +56,48 @@ public class GeminiApiClient {
             )
         );
 
-        Map<String, Object> response = restClient.post()
-            .uri("/models/{model}:generateContent", model)
-            .header("Content-Type", "application/json")
-            .header("X-goog-api-key", apiKey)
-            .body(requestBody)
-            .retrieve()
-            .body(new ParameterizedTypeReference<>() {
-            });
+        return executeWithRetry(requestBody);
+    }
 
-        return extractText(response);
+    /**
+     * 429(Too Many Requests) 응답 시 지수 백오프로 재시도한다.
+     * 대기 시간: 1초 → 2초 → 4초 (2배씩 증가)
+     */
+    private String executeWithRetry(Map<String, Object> requestBody) {
+        for (int attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                Map<String, Object> response = restClient.post()
+                    .uri("/models/{model}:generateContent", model)
+                    .header("Content-Type", "application/json")
+                    .header("X-goog-api-key", apiKey)
+                    .body(requestBody)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {
+                    });
+
+                return extractText(response);
+
+            } catch (HttpClientErrorException.TooManyRequests e) {
+                if (attempt == MAX_RETRIES) {
+                    throw e;
+                }
+                long delay = INITIAL_DELAY_MS * (1L << attempt); // 1초, 2초, 4초
+                log.warn("Gemini API 429 응답. {}ms 후 재시도 ({}/{})",
+                    delay, attempt + 1, MAX_RETRIES);
+                sleep(delay);
+            }
+        }
+
+        throw new IllegalStateException("Gemini API 재시도 횟수 초과");
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("재시도 대기 중 인터럽트 발생", e);
+        }
     }
 
     // Object -> List<Map<String, Object>> 로 캐스팅할 때 컴파일러가 경고
